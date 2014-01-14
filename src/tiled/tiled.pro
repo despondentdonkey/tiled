@@ -154,7 +154,8 @@ SOURCES += aboutdialog.cpp \
     varianteditorfactory.cpp \
     variantpropertymanager.cpp \
     zoomable.cpp \
-    tileanimationeditor.cpp
+    tileanimationeditor.cpp \
+    changetileanimation.cpp
 
 HEADERS += aboutdialog.h \
     abstractobjecttool.h \
@@ -274,7 +275,8 @@ HEADERS += aboutdialog.h \
     varianteditorfactory.h \
     variantpropertymanager.h \
     zoomable.h \
-    tileanimationeditor.h
+    tileanimationeditor.h \
+    changetileanimation.h
 
 macx {
     OBJECTIVE_SOURCES += macsupport.mm

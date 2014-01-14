@@ -21,6 +21,8 @@
 #include "tileanimationeditor.h"
 #include "ui_tileanimationeditor.h"
 
+#include "changetileanimation.h"
+#include "mapdocument.h"
 #include "tile.h"
 #include "tiled.h"
 #include "tileset.h"
@@ -28,6 +30,7 @@
 
 #include <QAbstractListModel>
 #include <QCloseEvent>
+#include <QUndoStack>
 
 #include <QDebug>
 
@@ -36,6 +39,8 @@ namespace Internal {
 
 class FrameListModel : public QAbstractListModel
 {
+    Q_OBJECT
+
 public:
     explicit FrameListModel(QObject *parent = 0)
         : QAbstractListModel(parent)
@@ -55,8 +60,8 @@ public:
                       const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
 
-    void setFrames(const Tileset *tileset,
-                   const QVector<Frame> &frames);
+    void setFrames(const Tileset *tileset, const QVector<Frame> &frames);
+    const QVector<Frame> &frames() const;
 
 private:
     const Tileset *mTileset;
@@ -91,6 +96,7 @@ bool FrameListModel::setData(const QModelIndex &index, const QVariant &value,
         int duration = value.toInt();
         if (duration >= 0) {
             mFrames[index.row()].duration = duration;
+            emit dataChanged(index, index);
             return true;
         }
     }
@@ -219,6 +225,11 @@ void FrameListModel::setFrames(const Tileset *tileset,
     endResetModel();
 }
 
+const QVector<Frame> &FrameListModel::frames() const
+{
+    return mFrames;
+}
+
 
 TileAnimationEditor::TileAnimationEditor(QWidget *parent)
     : QWidget(parent, Qt::Window)
@@ -227,6 +238,15 @@ TileAnimationEditor::TileAnimationEditor(QWidget *parent)
 {
     mUi->setupUi(this);
     mUi->frameList->setModel(mFrameListModel);
+
+    connect(mFrameListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            SLOT(framesEdited()));
+    connect(mFrameListModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            SLOT(framesEdited()));
+    connect(mFrameListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            SLOT(framesEdited()));
+    connect(mFrameListModel, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
+            SLOT(framesEdited()));
 
     Utils::restoreGeometry(this);
 }
@@ -271,5 +291,15 @@ void TileAnimationEditor::closeEvent(QCloseEvent *event)
         emit closed();
 }
 
+void TileAnimationEditor::framesEdited()
+{
+    QUndoCommand *command = new ChangeTileAnimation(mMapDocument,
+                                                    mTile,
+                                                    mFrameListModel->frames());
+    mMapDocument->undoStack()->push(command);
+}
+
 } // namespace Internal
 } // namespace Tiled
+
+#include "tileanimationeditor.moc"

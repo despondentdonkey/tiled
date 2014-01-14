@@ -1,5 +1,5 @@
 /*
- * tileanimationeditor.h
+ * changetileanimation.cpp
  * Copyright 2014, Thorbjørn Lindeijer <thorbjorn@lindeijer.nl>
  *
  * This file is part of Tiled.
@@ -18,57 +18,34 @@
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TILED_INTERNAL_TILEANIMATIONEDITOR_H
-#define TILED_INTERNAL_TILEANIMATIONEDITOR_H
+#include "changetileanimation.h"
 
-#include <QWidget>
+#include "mapdocument.h"
 
-namespace Ui {
-class TileAnimationEditor;
-}
+#include <QCoreApplication>
 
 namespace Tiled {
-
-class Tile;
-
 namespace Internal {
 
-class FrameListModel;
-class MapDocument;
-
-class TileAnimationEditor : public QWidget
+ChangeTileAnimation::ChangeTileAnimation(MapDocument *mapDocument,
+                                         Tile *tile,
+                                         const QVector<Frame> &frames)
+    : QUndoCommand(QCoreApplication::translate(
+                       "Undo Commands", "Change Tile Animation"))
+    , mMapDocument(mapDocument)
+    , mTile(tile)
+    , mFrames(frames)
 {
-    Q_OBJECT
+}
 
-public:
-    explicit TileAnimationEditor(QWidget *parent = 0);
-    ~TileAnimationEditor();
+void ChangeTileAnimation::swap()
+{
+    const QVector<Frame> frames = mTile->frames();
+    mTile->setFrames(mFrames);
+    mFrames = frames;
 
-    void setMapDocument(MapDocument *mapDocument);
-
-    void writeSettings();
-
-signals:
-    void closed();
-
-public slots:
-    void setTile(Tile *tile);
-
-protected:
-    void closeEvent(QCloseEvent *);
-
-private slots:
-    void framesEdited();
-
-private:
-    Ui::TileAnimationEditor *mUi;
-
-    MapDocument *mMapDocument;
-    Tile *mTile;
-    FrameListModel *mFrameListModel;
-};
+    mMapDocument->emitTileAnimationChanged(mTile);
+}
 
 } // namespace Internal
 } // namespace Tiled
-
-#endif // TILED_INTERNAL_TILEANIMATIONEDITOR_H
