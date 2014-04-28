@@ -624,6 +624,10 @@ void QtTreePropertyBrowserPrivate::propertyChanged(QtBrowserItem *index)
 void QtTreePropertyBrowserPrivate::updateItem(QTreeWidgetItem *item)
 {
     QtProperty *property = m_itemToIndex[item]->property();
+
+    item->setForeground(0, QBrush(property->color()));
+    item->setForeground(1, QBrush(property->color()));
+
     QIcon expandIcon;
     if (property->hasValue()) {
         QString toolTip = property->toolTip();

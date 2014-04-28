@@ -84,6 +84,7 @@ public:
     QString statusTip() const;
     QString whatsThis() const;
     QString propertyName() const;
+    QColor color() const;
     bool isEnabled() const;
     bool isModified() const;
 
@@ -96,6 +97,7 @@ public:
     void setStatusTip(const QString &text);
     void setWhatsThis(const QString &text);
     void setPropertyName(const QString &text);
+    void setColor(const QColor &color);
     void setEnabled(bool enable);
     void setModified(bool modified);
 
