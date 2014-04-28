@@ -139,6 +139,7 @@ void PropertyBrowser::setObject(Object *object)
 
     // Add a node for the custom properties
     mCustomPropertiesGroup = mGroupManager->addProperty(tr("Custom Properties"));
+    mCustomPropertiesGroup->setColor(Qt::white);
     addProperty(mCustomPropertiesGroup);
 
     mUpdating = false;
@@ -189,6 +190,8 @@ void PropertyBrowser::setMapDocument(MapDocument *mapDocument)
                 SLOT(propertyChanged(Object*,QString)));
         connect(mapDocument, SIGNAL(propertiesChanged(Object*)),
                 SLOT(propertiesChanged(Object*)));
+        connect(mapDocument, SIGNAL(selectedObjectsChanged()),
+                SLOT(selectedObjectsChanged()));
     }
 }
 
@@ -291,6 +294,11 @@ void PropertyBrowser::propertiesChanged(Object *object)
         updateCustomProperties();
 }
 
+void PropertyBrowser::selectedObjectsChanged()
+{
+    updateCustomProperties();
+}
+
 void PropertyBrowser::valueChanged(QtProperty *property, const QVariant &val)
 {
     if (mUpdating)
@@ -324,6 +332,7 @@ void PropertyBrowser::valueChanged(QtProperty *property, const QVariant &val)
 void PropertyBrowser::addMapProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Map"));
+    groupProperty->setColor(Qt::white);
 
     createProperty(SizeProperty, QVariant::Size, tr("Size"), groupProperty)->setEnabled(false);
     createProperty(TileSizeProperty, QVariant::Size, tr("Tile Size"), groupProperty);
@@ -385,6 +394,8 @@ static QStringList objectTypeNames()
 void PropertyBrowser::addMapObjectProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Object"));
+    groupProperty->setColor(Qt::white);
+
     createProperty(IdProperty, QVariant::Int, tr("ID"), groupProperty)->setEnabled(false);
     createProperty(NameProperty, QVariant::String, tr("Name"), groupProperty);
 
@@ -423,6 +434,7 @@ void PropertyBrowser::addLayerProperties(QtProperty *parent)
 void PropertyBrowser::addTileLayerProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Tile Layer"));
+    groupProperty->setColor(Qt::white);
     addLayerProperties(groupProperty);
     addProperty(groupProperty);
 }
@@ -430,6 +442,7 @@ void PropertyBrowser::addTileLayerProperties()
 void PropertyBrowser::addObjectGroupProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Object Layer"));
+    groupProperty->setColor(Qt::white);
     addLayerProperties(groupProperty);
 
     createProperty(ColorProperty, QVariant::Color, tr("Color"), groupProperty);
@@ -448,6 +461,7 @@ void PropertyBrowser::addObjectGroupProperties()
 void PropertyBrowser::addImageLayerProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Image Layer"));
+    groupProperty->setColor(Qt::white);
     addLayerProperties(groupProperty);
 
     QtVariantProperty *imageSourceProperty = createProperty(ImageSourceProperty,
@@ -465,6 +479,7 @@ void PropertyBrowser::addImageLayerProperties()
 void PropertyBrowser::addTilesetProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Tileset"));
+    groupProperty->setColor(Qt::white);
     createProperty(NameProperty, QVariant::String, tr("Name"), groupProperty);
     createProperty(TileOffsetProperty, QVariant::Point, tr("Drawing Offset"), groupProperty);
     addProperty(groupProperty);
@@ -473,13 +488,19 @@ void PropertyBrowser::addTilesetProperties()
 void PropertyBrowser::addTileProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Tile"));
-    createProperty(IdProperty, QVariant::Int, tr("ID"), groupProperty)->setEnabled(false);
+    groupProperty->setColor(Qt::white);
+
+    QtProperty *idProperty = createProperty(IdProperty, QVariant::Int, tr("ID"), groupProperty);
+    idProperty->setEnabled(false);
+    idProperty->setColor(Qt::gray);
+
     addProperty(groupProperty);
 }
 
 void PropertyBrowser::addTerrainProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Terrain"));
+    groupProperty->setColor(Qt::white);
     createProperty(NameProperty, QVariant::String, tr("Name"), groupProperty);
     addProperty(groupProperty);
 }
@@ -887,6 +908,21 @@ void PropertyBrowser::updateCustomProperties()
                                                      it.key(),
                                                      mCustomPropertiesGroup);
         property->setValue(it.value());
+        property->setColor(Qt::black);
+
+        // If there are other objects selected check if their properties are equal. If not give them a gray color.
+        const QList<Object*> &currentObjects = mMapDocument->currentObjects();
+        if (currentObjects.size() > 1) {
+            foreach (Object *obj, currentObjects) {
+                if (obj == mObject)
+                    continue;
+
+                if (obj->property(it.key()) != it.value()) {
+                    property->setColor(Qt::gray);
+                    break;
+                }
+            }
+        }
     }
 
     mUpdating = false;
