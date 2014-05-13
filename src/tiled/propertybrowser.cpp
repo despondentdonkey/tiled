@@ -104,6 +104,7 @@ PropertyBrowser::PropertyBrowser(QWidget *parent)
 
 void PropertyBrowser::setObject(Object *object)
 {
+
     if (mObject == object)
         return;
 
@@ -193,6 +194,8 @@ void PropertyBrowser::setMapDocument(MapDocument *mapDocument)
                 SLOT(propertiesChanged(Object*)));
         connect(mapDocument, SIGNAL(selectedObjectsChanged()),
                 SLOT(selectedObjectsChanged()));
+        connect(mapDocument, SIGNAL(selectedTilesChanged()),
+                SLOT(selectedTilesChanged()));
     }
 }
 
@@ -296,6 +299,11 @@ void PropertyBrowser::propertiesChanged(Object *object)
 }
 
 void PropertyBrowser::selectedObjectsChanged()
+{
+    updateCustomProperties();
+}
+
+void PropertyBrowser::selectedTilesChanged()
 {
     updateCustomProperties();
 }
