@@ -63,6 +63,7 @@ PropertyBrowser::PropertyBrowser(QWidget *parent)
     , mVariantManager(new VariantPropertyManager(this))
     , mGroupManager(new QtGroupPropertyManager(this))
     , mCustomPropertiesGroup(0)
+    , mPropertyGroupColor(Qt::white)
 {
     setFactoryForManager(mVariantManager, new VariantEditorFactory(this));
     setResizeMode(ResizeToContents);
@@ -139,7 +140,7 @@ void PropertyBrowser::setObject(Object *object)
 
     // Add a node for the custom properties
     mCustomPropertiesGroup = mGroupManager->addProperty(tr("Custom Properties"));
-    mCustomPropertiesGroup->setColor(Qt::white);
+    mCustomPropertiesGroup->setColor(mPropertyGroupColor);
     addProperty(mCustomPropertiesGroup);
 
     mUpdating = false;
@@ -332,7 +333,7 @@ void PropertyBrowser::valueChanged(QtProperty *property, const QVariant &val)
 void PropertyBrowser::addMapProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Map"));
-    groupProperty->setColor(Qt::white);
+    groupProperty->setColor(mPropertyGroupColor);
 
     createProperty(SizeProperty, QVariant::Size, tr("Size"), groupProperty)->setEnabled(false);
     createProperty(TileSizeProperty, QVariant::Size, tr("Tile Size"), groupProperty);
@@ -394,7 +395,7 @@ static QStringList objectTypeNames()
 void PropertyBrowser::addMapObjectProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Object"));
-    groupProperty->setColor(Qt::white);
+    groupProperty->setColor(mPropertyGroupColor);
 
     createProperty(IdProperty, QVariant::Int, tr("ID"), groupProperty)->setEnabled(false);
     createProperty(NameProperty, QVariant::String, tr("Name"), groupProperty);
@@ -434,7 +435,7 @@ void PropertyBrowser::addLayerProperties(QtProperty *parent)
 void PropertyBrowser::addTileLayerProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Tile Layer"));
-    groupProperty->setColor(Qt::white);
+    groupProperty->setColor(mPropertyGroupColor);
     addLayerProperties(groupProperty);
     addProperty(groupProperty);
 }
@@ -442,7 +443,7 @@ void PropertyBrowser::addTileLayerProperties()
 void PropertyBrowser::addObjectGroupProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Object Layer"));
-    groupProperty->setColor(Qt::white);
+    groupProperty->setColor(mPropertyGroupColor);
     addLayerProperties(groupProperty);
 
     createProperty(ColorProperty, QVariant::Color, tr("Color"), groupProperty);
@@ -461,7 +462,7 @@ void PropertyBrowser::addObjectGroupProperties()
 void PropertyBrowser::addImageLayerProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Image Layer"));
-    groupProperty->setColor(Qt::white);
+    groupProperty->setColor(mPropertyGroupColor);
     addLayerProperties(groupProperty);
 
     QtVariantProperty *imageSourceProperty = createProperty(ImageSourceProperty,
@@ -479,7 +480,7 @@ void PropertyBrowser::addImageLayerProperties()
 void PropertyBrowser::addTilesetProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Tileset"));
-    groupProperty->setColor(Qt::white);
+    groupProperty->setColor(mPropertyGroupColor);
     createProperty(NameProperty, QVariant::String, tr("Name"), groupProperty);
     createProperty(TileOffsetProperty, QVariant::Point, tr("Drawing Offset"), groupProperty);
     addProperty(groupProperty);
@@ -488,7 +489,7 @@ void PropertyBrowser::addTilesetProperties()
 void PropertyBrowser::addTileProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Tile"));
-    groupProperty->setColor(Qt::white);
+    groupProperty->setColor(mPropertyGroupColor);
 
     QtProperty *idProperty = createProperty(IdProperty, QVariant::Int, tr("ID"), groupProperty);
     idProperty->setEnabled(false);
@@ -500,7 +501,7 @@ void PropertyBrowser::addTileProperties()
 void PropertyBrowser::addTerrainProperties()
 {
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Terrain"));
-    groupProperty->setColor(Qt::white);
+    groupProperty->setColor(mPropertyGroupColor);
     createProperty(NameProperty, QVariant::String, tr("Name"), groupProperty);
     addProperty(groupProperty);
 }

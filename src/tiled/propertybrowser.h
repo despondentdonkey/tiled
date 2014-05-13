@@ -167,6 +167,8 @@ private:
     QStringList mRenderOrderNames;
     QStringList mFlippingFlagNames;
     QStringList mDrawOrderNames;
+
+    QColor mPropertyGroupColor;
 };
 
 inline Object *PropertyBrowser::object() const
