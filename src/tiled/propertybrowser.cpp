@@ -104,7 +104,6 @@ PropertyBrowser::PropertyBrowser(QWidget *parent)
 
 void PropertyBrowser::setObject(Object *object)
 {
-
     if (mObject == object)
         return;
 
@@ -287,6 +286,8 @@ void PropertyBrowser::propertyChanged(Object *object, const QString &name)
 {
     if (mObject == object) {
         mUpdating = true;
+        if (mObject == mFakeObject)
+            mFakeProperties.remove(name); // If this property was scheduled to be removed but then it got changed we will remove it from the fake property list to treat it as real.
         mNameToProperty[name]->setValue(object->property(name));
         mUpdating = false;
     }
@@ -904,12 +905,44 @@ void PropertyBrowser::updateProperties()
 
 void PropertyBrowser::updateCustomProperties()
 {
+    if (!mObject)
+        return;
+
     mUpdating = true;
 
     qDeleteAll(mNameToProperty);
     mNameToProperty.clear();
 
+    // Remove all properties that never got set on the fake object.
+    if (mFakeObject) {
+        foreach (QString propName, mFakeProperties)
+            mFakeObject->removeProperty(propName);
+    }
+    mFakeProperties.clear();
+
+    // If an object doesn't have a property of a selected object then we create one. We will later delete this property if it never gets set.
+    mFakeObject = mObject;
+    const QList<Object*> &currentObjects = mMapDocument->currentObjects();
+    if (currentObjects.size() > 1) {
+        foreach (Object *obj, currentObjects) {
+            if (obj == mFakeObject)
+                continue;
+
+            QMapIterator<QString,QString> it(obj->properties());
+
+            while (it.hasNext()) {
+                it.next();
+                if (!mFakeObject->hasProperty(it.key())) {
+                    // Create a property and have it scheduled to delete if never changed.
+                    mFakeObject->setProperty(it.key(), tr(""));
+                    mFakeProperties.insert(it.key());
+                }
+            }
+        }
+    }
+
     QMapIterator<QString,QString> it(mObject->properties());
+
     while (it.hasNext()) {
         it.next();
         QtVariantProperty *property = createProperty(CustomProperty,
@@ -920,7 +953,6 @@ void PropertyBrowser::updateCustomProperties()
         property->setColor(Qt::black);
 
         // If there are other objects selected check if their properties are equal. If not give them a gray color.
-        const QList<Object*> &currentObjects = mMapDocument->currentObjects();
         if (currentObjects.size() > 1) {
             foreach (Object *obj, currentObjects) {
                 if (obj == mObject)

@@ -32,7 +32,6 @@
 #include <QObject>
 #include <QRegion>
 #include <QString>
-#include <QDebug>
 
 class QModelIndex;
 class QPoint;

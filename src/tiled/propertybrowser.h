@@ -164,6 +164,11 @@ private:
     QStringList mStaggerAxisNames;
     QStringList mStaggerIndexNames;
     QStringList mOrientationNames;
+
+    // A fake property is one that is added when a selected object has a property but the current object does not.
+    QSet<QString> mFakeProperties;
+    Object *mFakeObject; // This is the object which contains the fake properties.
+
     QStringList mLayerFormatNames;
     QStringList mRenderOrderNames;
     QStringList mFlippingFlagNames;
