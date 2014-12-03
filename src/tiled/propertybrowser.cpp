@@ -64,6 +64,7 @@ PropertyBrowser::PropertyBrowser(QWidget *parent)
     , mGroupManager(new QtGroupPropertyManager(this))
     , mCustomPropertiesGroup(0)
     , mPropertyGroupColor(Qt::white)
+    , mPropertyDisabledColor(Qt::gray)
 {
     setFactoryForManager(mVariantManager, new VariantEditorFactory(this));
     setResizeMode(ResizeToContents);
@@ -406,7 +407,10 @@ void PropertyBrowser::addMapObjectProperties()
     QtProperty *groupProperty = mGroupManager->addProperty(tr("Object"));
     groupProperty->setColor(mPropertyGroupColor);
 
-    createProperty(IdProperty, QVariant::Int, tr("ID"), groupProperty)->setEnabled(false);
+    QtProperty *idProperty = createProperty(IdProperty, QVariant::Int, tr("ID"), groupProperty);
+    idProperty->setEnabled(false);
+    idProperty->setColor(mPropertyDisabledColor);
+
     createProperty(NameProperty, QVariant::String, tr("Name"), groupProperty);
 
     QtVariantProperty *typeProperty =
@@ -502,7 +506,7 @@ void PropertyBrowser::addTileProperties()
 
     QtProperty *idProperty = createProperty(IdProperty, QVariant::Int, tr("ID"), groupProperty);
     idProperty->setEnabled(false);
-    idProperty->setColor(Qt::gray);
+    idProperty->setColor(mPropertyDisabledColor);
 
     addProperty(groupProperty);
 }

@@ -175,6 +175,7 @@ private:
     QStringList mDrawOrderNames;
 
     QColor mPropertyGroupColor;
+    QColor mPropertyDisabledColor;
 };
 
 inline Object *PropertyBrowser::object() const
